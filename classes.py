@@ -4,26 +4,33 @@ class Player:
         self.clas = clas
         self.equip = equip
         self.location = location
+    def __repr__(self):
+        return f'a {self.clas} called {self.name}'
 
 class Room:
-    def __init__(self, description, items):
+    def __init__(self, name, description, items):
+        self.name = name
         self.description = description
         self.items = items
+    def __repr__(self):
+        return self.name
 
 class Item:
-    def __init__(self, description, weight, value):
+    def __init__(self, name, description, weight, value):
+        self.name = name
         self.description = description
         self.weight = weight
         self.value = value
 
 class Weapon(Item):
-    def __init__(self, description, weight, value, damage, accuracy):
-        super().__init__(description, weight, value)
+    def __init__(self, name, description, weight, value, damage, accuracy):
+        super().__init__(name, description, weight, value)
         self.damage = damage
         self.accuracy = accuracy
 
 class Armor(Item):
-    def __init__(self, description, weight, value, protection, speed):
-        super().__init__(description, weight, value)
+    def __init__(self, name, description, weight, value, protection, speed):
+        super().__init__(name, description, weight, value)
         self.protection = protection
         self.speed = speed
+        
