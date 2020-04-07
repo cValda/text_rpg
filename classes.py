@@ -21,16 +21,22 @@ class Item:
         self.description = description
         self.weight = weight
         self.value = value
+    def __repr__(self):
+        return self.name
 
 class Weapon(Item):
     def __init__(self, name, description, weight, value, damage, accuracy):
         super().__init__(name, description, weight, value)
         self.damage = damage
         self.accuracy = accuracy
+    def __repr__(self):
+        return self.name
+        
 
 class Armor(Item):
     def __init__(self, name, description, weight, value, protection, speed):
         super().__init__(name, description, weight, value)
         self.protection = protection
         self.speed = speed
-        
+    def __repr__(self):
+        return self.name

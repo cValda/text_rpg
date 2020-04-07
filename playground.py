@@ -1,10 +1,4 @@
-from funcs import *
-from classes import *
+a = [1, 2, 3]
 
-valda = Player('valda', 'mage', [], ())
-print(valda)
-
-print(len(valda.location))
-
-kitchen = Room('a kitchen', 'a dirty kitchen', [])
-print(kitchen)
+for i in range(len(a)):
+    print(i)
