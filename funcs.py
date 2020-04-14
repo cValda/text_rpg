@@ -11,5 +11,3 @@ def start():
         if clas not in valid_classes:
             print('Enter a valid class!')
     return name, clas
-
-    

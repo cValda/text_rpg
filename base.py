@@ -7,9 +7,10 @@ move = ['go', 'move', 'walk', 'run']
 take = ['take', 'grab', 'pick up']
 every = ['all', 'everything']
 drop = ['drop', 'discard', 'throw away']
+look = ['look', 'examine', 'inspect', 'check']
 inventory = ['inventory', 'my items']
 
-#creating items - it is now possible to have multiples of the same item
+#creating items - all items must be unique
 #weapons
 sword = Weapon('sword', 'it\'s sharp', 1, 10, 5, 0.7)
 
@@ -20,13 +21,19 @@ gambeson = Armor('gambeson', 'it\'s a type of padded armor, this one is quite th
 lantern = Item('lantern', 'it can be lit to illuminate dark places', 1, 3)
 
 #creating rooms
-hall = Room('hall', 'it\'s a large hall with animal trophies on the walls', [lantern, sword])
+hall = Room('hall', 'it\'s a large hall with animal trophies on the walls', [lantern])
 bedroom = Room('bedroom', 'it looks quite wealthy; the bed is covered in expensive sheets', [sword])
-kitchen = Room('kitchen', 'there\'s a large oven and a lot of kitchenware', [gambeson, sword])
+kitchen = Room('kitchen', 'there\'s a large oven and a lot of kitchenware', [gambeson])
 living_room = Room('living room', 'it seems warm and cozy', [])
 
 #indexing rooms
 rooms = {(0, 0): hall, (0, 1): bedroom, (1, 0): living_room, (1, 1): kitchen}
+
+duplicit_check = []
+for i in list(rooms.values()):
+    duplicit_check += i.items
+if len(duplicit_check) != len(set(duplicit_check)):
+    raise ValueError("Multiple instances of the same item have been created. All items must be unique!")
 
 #defines player character (name, class, equip, location)
 specs = start()
@@ -76,14 +83,10 @@ while True:
                     hero.equip.append(items_in_room[i])
                 items_in_room.clear()
             else:
-                duplicate_item = ''
                 for i in range(len(items_in_room)): #this is here to make sure multiple items can be picked up at the same time
                     try:
                         for i in range(len(items_in_room)):
                             if items_in_room[i].name in command:
-                                if items_in_room[i].name == duplicate_item:
-                                    break
-                                duplicate_item = items_in_room[i].name
                                 hero.equip.append(items_in_room[i])
                                 items_in_room.remove(items_in_room[i])
                     except IndexError:
@@ -104,21 +107,32 @@ while True:
                                 hero.equip.remove(hero.equip[i])
                     except IndexError:
                         continue
-        elif any(i in command for i in inventory):
-            if len(hero.equip) > 0:
-                print("You have a ", end = '')
-                for i in range(len(hero.equip)):
-                    print(hero.equip[i].name, end = '')
-                    if i < (len(hero.equip) - 2):
-                        print(', a ', end = '')
-                    elif i < (len(hero.equip) - 1):
-                        print(' and a ', end = '')
-                    else:
-                        print('.')
-                input('Press ENTER to continue.')
+
+        #examining various things
+        elif any(i in command for i in look):
+            if any(i in command for i in inventory): #check inventory
+                if len(hero.equip) > 0:
+                    print("You have a ", end = '')
+                    for i in range(len(hero.equip)):
+                        print(hero.equip[i].name, end = '')
+                        if i < (len(hero.equip) - 2):
+                            print(', a ', end = '')
+                        elif i < (len(hero.equip) - 1):
+                            print(' and a ', end = '')
+                        else:
+                            print('.')
+                else:
+                    print('You don\'t have anything, you poor bastard.')
+
             else:
-                print('You don\'t have anything, you poor bastard.')
-                input('Press ENTER to continue.')
+                for i in range(len(hero.equip)): #examine item in inventory
+                    if hero.equip[i].name in command:
+                        print(f'{hero.equip[i].description.capitalize()}.')
+
+                for i in range(len(items_in_room)):
+                    if items_in_room[i].name in command:
+                        print(f'{items_in_room[i].description.capitalize()}.')
+            input('Press ENTER to continue.')
 
     except KeyError:
         input("You can\'t go there! Press ENTER to try again.")
