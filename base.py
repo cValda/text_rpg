@@ -3,12 +3,14 @@ from classes import *
 import os
 
 #defining commands
-move = ['go', 'move', 'walk', 'run']
+move = ['go', 'move', 'walk', 'run', 'climb', 'descend']
 take = ['take', 'grab', 'pick up']
 every = ['all', 'everything']
 drop = ['drop', 'discard', 'throw away']
 look = ['look', 'examine', 'inspect', 'check']
 inventory = ['inventory', 'my items']
+up = ['up']
+down = ['down', 'descend']
 
 #creating items - all items must be unique
 #weapons
@@ -21,13 +23,18 @@ gambeson = Armor('gambeson', 'it\'s a type of padded armor, this one is quite th
 lantern = Item('lantern', 'it can be lit to illuminate dark places', 1, 3)
 
 #creating rooms
-hall = Room('hall', 'it\'s a large hall with animal trophies on the walls', [lantern])
-bedroom = Room('bedroom', 'it looks quite wealthy; the bed is covered in expensive sheets', [sword])
-kitchen = Room('kitchen', 'there\'s a large oven and a lot of kitchenware', [gambeson])
-living_room = Room('living room', 'it seems warm and cozy', [])
+hall = Room('hall', 'It\'s a large hall with animal trophies on the walls.', [lantern])
+bedroom = Room('bedroom', 'It looks quite wealthy; the bed is covered in expensive sheets.', [sword])
+kitchen = Room('kitchen', 'There\'s a large oven and a lot of kitchenware.', [gambeson])
+living_room = Room('living room', 'It seems warm and cozy.', [])
+cellar = Room('cellar', 'It\'s very dark. You can\'t see a thing.', [])
+attic = Room('attic', 'You see a collection of rubbish from the last 100 years. Everything is covered in dust.', [])
 
 #indexing rooms
-rooms = {(0, 0): hall, (0, 1): bedroom, (1, 0): living_room, (1, 1): kitchen}
+rooms = {
+(0, 0, 0): hall, (0, 0, 1): attic, (0, 1, 0): bedroom,
+(1, 0, 0): living_room, (1, 1, 0): kitchen, (1, 1, -1): cellar,
+}
 
 duplicit_check = []
 for i in list(rooms.values()):
@@ -37,7 +44,7 @@ if len(duplicit_check) != len(set(duplicit_check)):
 
 #defines player character (name, class, equip, location)
 specs = start()
-hero = Player(specs[0], specs[1], [], (0, 0))
+hero = Player(specs[0], specs[1], [], (0, 0, 0))
 
 #clear output
 os.system('cls')
@@ -49,7 +56,7 @@ while True:
         items_in_room = rooms[hero.location].items
         current_room_name = rooms[hero.location].name
         current_room_desc = rooms[hero.location].description
-        print(f"You\'re in a {current_room_name}. {current_room_desc.capitalize()}.")
+        print(f"You\'re in a {current_room_name}. {current_room_desc}")
         if len(items_in_room) > 0:
             print("You see a ", end = '')
             for i in range(len(items_in_room)):
@@ -68,13 +75,17 @@ while True:
         if any(i in command for i in move):
             current = hero.location
             if 'north' in command:
-                hero.location = (hero.location[0], hero.location[1] + 1)
+                hero.location = (hero.location[0], hero.location[1] + 1, hero.location[2])
             if 'east' in command:
-                hero.location = (hero.location[0] + 1, hero.location[1])
+                hero.location = (hero.location[0] + 1, hero.location[1], hero.location[2])
             if 'west' in command:
-                hero.location = (hero.location[0] - 1, hero.location[1])
+                hero.location = (hero.location[0] - 1, hero.location[1], hero.location[2])
             if 'south' in command:
-                hero.location = (hero.location[0], hero.location[1] - 1)
+                hero.location = (hero.location[0], hero.location[1] - 1, hero.location[2])
+            if any(i in command for i in up):
+                hero.location = (hero.location[0], hero.location[1], hero.location[2] + 1)
+            if any(i in command for i in down):
+                hero.location = (hero.location[0], hero.location[1], hero.location[2] - 1)
         
         #picking up items
         elif any(i in command for i in take): #pick up
@@ -129,12 +140,12 @@ while True:
                     if hero.equip[i].name in command:
                         print(f'{hero.equip[i].description.capitalize()}.')
 
-                for i in range(len(items_in_room)):
+                for i in range(len(items_in_room)): #examine item in room
                     if items_in_room[i].name in command:
                         print(f'{items_in_room[i].description.capitalize()}.')
             input('Press ENTER to continue.')
 
     except KeyError:
-        input("You can\'t go there! Press ENTER to try again.")
+        input("There\'s nowhere to go that way. Let\'s go back and try again. Press ENTER.")
         hero.location = current
         continue
